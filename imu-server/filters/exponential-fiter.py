@@ -1,0 +1,1 @@
+# https://gregstanleyandassociates.com/whitepapers/FaultDiagnosis/Filtering/Exponential-Filter/exponential-filter.htm#:~:text=Exponential%20filters%20can%20be%20placed,for%20control%20loops%20or%20diagnosis.
