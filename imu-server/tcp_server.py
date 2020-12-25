@@ -5,19 +5,19 @@ import time
 import socket
 import thread_variables
 
-def tcp_server(ip, port):
+def tcp_server(ip, port, run_event):
     BUFFER_SIZE = 20  # Normally 1024, but we want fast response
 
-    print(f'Starting TCP server at: {ip}:{port}\n')
+    print('Starting TCP server at: {}:{}\n'.format(ip, port))
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((ip, port))
     s.listen(1)
 
     conn, addr = s.accept()
-    print(f'Client connnected: {addr}') 
+    print('Client connnected: {}'.format(addr)) 
 
-    while 1:
+    while run_event.is_set():
         data = thread_variables.imu_sensor_data.encode()
         print(data)
         conn.send(data)

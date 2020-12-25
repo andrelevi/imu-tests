@@ -37,3 +37,4 @@ imu-client-unity/*.unitypackage
 imu-client-unity/Assets/Procedural\ Assets/BuildDetails.cs*
 
 __pycache__
+*.pyc
