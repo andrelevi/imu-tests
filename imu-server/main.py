@@ -12,8 +12,8 @@ from imu.mock_imu import poll_imu_sensor_data as mock_imu_poll_imu_sensor_data
 parser = argparse.ArgumentParser(description='Start the IMU polling and TCP server.')
 parser.add_argument('--imu', action='store', type=str, default='MPU9250')
 parser.add_argument('--filter', action='store', type=str, default='kalman')
-parser.add_argument('--port', action='store', type=str, default=5005)
 parser.add_argument('--ip', action='store', type=str, default='127.0.0.1')
+parser.add_argument('--port', action='store', type=str, default=5005)
 args = parser.parse_args()
 
 print(f'=== IMU Server ===')
@@ -34,6 +34,3 @@ elif args.imu == 'mock_imu':
 if poll_imu_sensor_data != None:
     poll_imu_sensor_data_thread = Thread(target=poll_imu_sensor_data, args=(False,))
     poll_imu_sensor_data_thread.start()
-
-#tcp_server_thread.join()
-#poll_imu_sensor_data_thread.join()
