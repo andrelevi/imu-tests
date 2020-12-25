@@ -1,13 +1,22 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import socket
+import argparse
 
+parser = argparse.ArgumentParser(description='Start the IMU polling and TCP server.')
+#parser.add_argument('--filter', action='store', type=str, required=True)
+parser.add_argument('--port', action='store', type=str, default=5005)
+parser.add_argument('--ip', action='store', type=str, default='127.0.0.1')
+parser.add_argument('--filter', action='store', type=str, default='kalman')
 
-TCP_IP = '127.0.0.1'
-TCP_PORT = 5005
+args = parser.parse_args()
+
+TCP_IP = args.ip
+TCP_PORT = args.port
 BUFFER_SIZE = 20  # Normally 1024, but we want fast response
 
-print(f'Starting server: {TCP_IP}:{TCP_PORT}\n')
+print(f'IMU Server')
+print(f'Starting TCP server: {TCP_IP}:{TCP_PORT}...\n')
 
 #data = 'hello'
 
