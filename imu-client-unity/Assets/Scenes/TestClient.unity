@@ -150,6 +150,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8280d0154e2664099a4f0c7358cbf787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  LocalHost: 127.0.0.1
+  RemoteHost: 192.168.1.12
+  UseRemoteHost: 1
+  Port: 5005
 --- !u!4 &505029539
 Transform:
   m_ObjectHideFlags: 0
