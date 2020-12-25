@@ -8,21 +8,21 @@ public class TestClient : MonoBehaviour
 {
     [Header("Network Settings")]
     public string LocalHost = "127.0.0.1";
-    public string RemoteHost = "192.168.x.x";
     public bool UseRemoteHost;
+    public string RemoteHost = "192.168.x.x";
     public int Port = 5005;
 
     [Header("Run-time Data")]
-    private TcpClient TcpClient;
-    private NetworkStream NetworkStream;
-    private StreamWriter StreamWriter;
+    private TcpClient _tcpClient;
+    private NetworkStream _networkStream;
+    private StreamWriter _streamWriter;
     private float _timeOfLastCheck;
     
     private string Host => UseRemoteHost ? RemoteHost : LocalHost;
 
     private void Start()
     {
-        TcpClient = new TcpClient();
+        _tcpClient = new TcpClient();
 
         if (ConnectToHost())
         {
@@ -39,16 +39,16 @@ public class TestClient : MonoBehaviour
 
         _timeOfLastCheck = Time.time;
         
-        if (!TcpClient.Connected)
+        if (!_tcpClient.Connected)
         {
             ConnectToHost();
         }
         else
         {
-            var stream = TcpClient.GetStream();
-            var bytesToRead = new byte[TcpClient.ReceiveBufferSize];
-            var bytesRead = stream.Read(bytesToRead, 0, this.TcpClient.ReceiveBufferSize);
-            Debug.Log("Received: " + Encoding.ASCII.GetString(bytesToRead, 0, bytesRead));
+            var stream = _tcpClient.GetStream();
+            var bytesToRead = new byte[_tcpClient.ReceiveBufferSize];
+            var bytesRead = stream.Read(bytesToRead, 0, _tcpClient.ReceiveBufferSize);
+            Debug.Log(Encoding.ASCII.GetString(bytesToRead, 0, bytesRead));
         }
     }
 
@@ -56,27 +56,28 @@ public class TestClient : MonoBehaviour
     {
         try
         {
-            TcpClient.Connect(Host, Port);
-            NetworkStream = TcpClient.GetStream();
-            StreamWriter = new StreamWriter(NetworkStream);
+            _tcpClient.Connect(Host, Port);
+            _networkStream = _tcpClient.GetStream();
+            _streamWriter = new StreamWriter(_networkStream);
             
             var sendBytes = Encoding.UTF8.GetBytes("Hello, I am client.");
-            TcpClient.GetStream().Write(sendBytes, 0, sendBytes.Length);
+            _tcpClient.GetStream().Write(sendBytes, 0, sendBytes.Length);
             
             return true;
         }
         catch (Exception e)
         {
             Debug.Log("Socket error: " + e);
+            
             return false;
         }
     }
 
     private void OnApplicationQuit()
     {
-        if (TcpClient != null && TcpClient.Connected)
+        if (_tcpClient != null && _tcpClient.Connected)
         {
-            TcpClient.Close();
+            _tcpClient.Close();
         }
     }
 }
