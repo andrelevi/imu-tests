@@ -6,10 +6,12 @@ using UnityEngine;
 
 public class TestClient : MonoBehaviour
 {
+    public Transform TargetTransform;
+    
     [Header("Network Settings")]
     public string LocalHost = "127.0.0.1";
-    public bool UseRemoteHost;
     public string RemoteHost = "192.168.x.x";
+    public bool UseRemoteHost;
     public int Port = 5005;
 
     [Header("Run-time Data")]
@@ -32,7 +34,7 @@ public class TestClient : MonoBehaviour
 
     private void Update()
     {
-        if (Time.time - _timeOfLastCheck < 0.1f)
+        if (Time.time - _timeOfLastCheck < 1f)
         {
             return;
         }
@@ -48,7 +50,20 @@ public class TestClient : MonoBehaviour
             var stream = _tcpClient.GetStream();
             var bytesToRead = new byte[_tcpClient.ReceiveBufferSize];
             var bytesRead = stream.Read(bytesToRead, 0, _tcpClient.ReceiveBufferSize);
-            Debug.Log(Encoding.ASCII.GetString(bytesToRead, 0, bytesRead));
+            var str = Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
+            var values = str.Split(',');
+            
+            Debug.Log(str);
+            //Debug.Log(values.Length);
+
+            if (float.TryParse(values[0], out _))
+            {
+                TargetTransform.eulerAngles = new Vector3(
+                    float.Parse(values[0]),
+                    float.Parse(values[1]),
+                    float.Parse(values[2])
+                );
+            }
         }
     }
 
@@ -60,8 +75,8 @@ public class TestClient : MonoBehaviour
             _networkStream = _tcpClient.GetStream();
             _streamWriter = new StreamWriter(_networkStream);
             
-            var sendBytes = Encoding.UTF8.GetBytes("Hello, I am client.");
-            _tcpClient.GetStream().Write(sendBytes, 0, sendBytes.Length);
+            //var sendBytes = Encoding.UTF8.GetBytes("Hello, I am client.");
+            //_tcpClient.GetStream().Write(sendBytes, 0, sendBytes.Length);
             
             return true;
         }

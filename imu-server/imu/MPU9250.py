@@ -1,37 +1,36 @@
 #!/usr/bin/env python3
 
-# https://maker.pro/raspberry-pi/tutorial/how-to-interface-an-imu-sensor-with-a-raspberry-pi
-import FaBo9Axis_MPU9250
 import time
 import sys
 import math
 import thread_variables
+import os
+import smbus
+
+from imusensor.MPU9250 import MPU9250
 
 def poll_imu_sensor_data(is_verbose, run_event):
-    mpu9250 = FaBo9Axis_MPU9250.MPU9250()
+    address = 0x68
+    bus = smbus.SMBus(1)
+    imu = MPU9250.MPU9250(bus, address)
+    imu.begin()
 
     while run_event.is_set():
-        accel = mpu9250.readAccel()
-        if is_verbose:
-            print('ax: ' + str(accel['x']))
-            print('ay: ' + str(accel['y']))
-            print('az: ' + str(accel['z']))
-            print('')
+        imu.readSensor()
+        imu.computeOrientation()
 
-        gyro = mpu9250.readGyro()
-        if is_verbose:
-            print('gx: ' + str(gyro['x']))
-            print('gy: ' + str(gyro['y']))
-            print('gz: ' + str(gyro['z']))
-            print('')
+        #lists = [imu.AccelVals, imu.GyroVals, imu.MagVals]
+        #flattened_list = [item for sublist in lists for item in sublist]
 
-        mag = mpu9250.readMagnet()
-        if is_verbose:
-            print('mx: ' + str(mag['x']))
-            print('my: ' + str(mag['y']))
-            print('mz: ' + str(mag['z']))
-            print('')
+        flattened_list = [imu.roll, imu.pitch, imu.yaw]
+        flattened_list = map(str, flattened_list)
 
-        thread_variables.imu_sensor_data = str(accel['x'])
+        thread_variables.imu_sensor_data = ','.join(flattened_list)
+
+        if is_verbose:
+            print ("Accel x: {0} ; Accel y : {1} ; Accel z : {2}".format(imu.AccelVals[0], imu.AccelVals[1], imu.AccelVals[2]))
+            print ("Gyro x: {0} ; Gyro y : {1} ; Gyro z : {2}".format(imu.GyroVals[0], imu.GyroVals[1], imu.GyroVals[2]))
+            print ("Mag x: {0} ; Mag y : {1} ; Mag z : {2}".format(imu.MagVals[0], imu.MagVals[1], imu.MagVals[2]))
+            print ("roll: {0} ; pitch : {1} ; yaw : {2}".format(imu.roll, imu.pitch, imu.yaw))
 
         time.sleep(0.1)
