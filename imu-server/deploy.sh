@@ -3,7 +3,9 @@
 SSH_ENDPOINT=$1
 echo Deploying to: $SSH_ENDPOINT
 
-rsync -avP --delete --rsync-path="sudo rsync" "$(pwd)/" $SSH_ENDPOINT:/var/www/imu-server
+DIR=/var/www/imu-server
 
-ssh $SSH_ENDPOINT "sudo chmod +x ./setup.sh"
-ssh $SSH_ENDPOINT "sudo chmod +x ./main.py"
+rsync -avP --delete --rsync-path="sudo rsync" "$(pwd)/" $SSH_ENDPOINT:$DIR
+
+ssh $SSH_ENDPOINT "sudo chmod +x $DIR/setup.sh"
+ssh $SSH_ENDPOINT "sudo chmod +x $DIR/main.py"

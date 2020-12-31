@@ -5,7 +5,7 @@ import sys
 import math
 import thread_variables
 
-def poll_imu_sensor_data(is_verbose, run_event):
+def poll_imu_sensor_data(run_event, is_verbose):
     while run_event.is_set():
         accel = { 'x': math.sin(time.time()*1000.0), 'y': 0, 'z': 0}
         if is_verbose:

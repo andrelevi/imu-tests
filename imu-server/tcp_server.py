@@ -5,7 +5,7 @@ import time
 import socket
 import thread_variables
 
-def tcp_server(ip, port, run_event):
+def tcp_server(run_event, ip, port):
     BUFFER_SIZE = 20  # Normally 1024, but we want fast response
 
     print('Starting TCP server at: {}:{}\n'.format(ip, port))

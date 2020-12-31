@@ -9,7 +9,7 @@ import smbus
 
 from imusensor.MPU9250 import MPU9250
 
-def poll_imu_sensor_data(is_verbose, run_event):
+def poll_imu_sensor_data(run_event, is_verbose):
     address = 0x68
     bus = smbus.SMBus(1)
     imu = MPU9250.MPU9250(bus, address)
