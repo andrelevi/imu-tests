@@ -6,7 +6,11 @@ using UnityEngine;
 
 public class TestClient : MonoBehaviour
 {
+    [Header("Components")]
     public Transform TargetTransform;
+    
+    [Header("Options")]
+    public float PollFrequency = 1 / 60f;
     
     [Header("Network Settings")]
     public string LocalHost = "127.0.0.1";
@@ -34,7 +38,7 @@ public class TestClient : MonoBehaviour
 
     private void Update()
     {
-        if (Time.time - _timeOfLastCheck < 1f)
+        if (Time.time - _timeOfLastCheck < PollFrequency)
         {
             return;
         }
@@ -51,19 +55,43 @@ public class TestClient : MonoBehaviour
             var bytesToRead = new byte[_tcpClient.ReceiveBufferSize];
             var bytesRead = stream.Read(bytesToRead, 0, _tcpClient.ReceiveBufferSize);
             var str = Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
-            var values = str.Split(',');
-            
-            Debug.Log(str);
-            //Debug.Log(values.Length);
 
-            if (float.TryParse(values[0], out _))
+            const char endOfMessageMarker = ';';
+            
+            var messages = str.Split(endOfMessageMarker);
+            
+            for (var i = 0; i < messages.Length; i++)
             {
-                TargetTransform.eulerAngles = new Vector3(
-                    float.Parse(values[0]),
-                    float.Parse(values[1]),
-                    float.Parse(values[2])
-                );
+                ProcessMessage(messages[i]);
             }
+        }
+    }
+
+    private void ProcessMessage(string str)
+    {
+        var values = str.Split(',');
+        
+        if (values.Length <= 1) return;
+
+        if (float.TryParse(values[0], out _))
+        {
+            TargetTransform.eulerAngles = new Vector3(
+                float.Parse(values[0]),
+                float.Parse(values[1]),
+                float.Parse(values[2])
+            );
+        }
+        
+        var isButton1Pressed = values[3] == "1";
+        if (isButton1Pressed)
+        {
+            Debug.Log("Button 1 pressed");
+        }
+        
+        var isButton2Pressed = values[4] == "1";
+        if (isButton2Pressed)
+        {
+            Debug.Log("Button 2 pressed");
         }
     }
 
@@ -74,9 +102,6 @@ public class TestClient : MonoBehaviour
             _tcpClient.Connect(Host, Port);
             _networkStream = _tcpClient.GetStream();
             _streamWriter = new StreamWriter(_networkStream);
-            
-            //var sendBytes = Encoding.UTF8.GetBytes("Hello, I am client.");
-            //_tcpClient.GetStream().Write(sendBytes, 0, sendBytes.Length);
             
             return true;
         }

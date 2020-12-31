@@ -152,8 +152,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TargetTransform: {fileID: 524673335}
   LocalHost: 127.0.0.1
+  RemoteHost: 192.168.1.13
   UseRemoteHost: 1
-  RemoteHost: 192.168.1.12
   Port: 5005
 --- !u!4 &505029539
 Transform:

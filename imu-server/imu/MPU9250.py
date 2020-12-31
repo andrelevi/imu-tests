@@ -9,7 +9,7 @@ import smbus
 
 from imusensor.MPU9250 import MPU9250
 
-def poll_imu_sensor_data(run_event, is_verbose):
+def poll_imu_sensor_data(run_event, poll_frequency, is_verbose):
     address = 0x68
     bus = smbus.SMBus(1)
     imu = MPU9250.MPU9250(bus, address)
@@ -33,4 +33,4 @@ def poll_imu_sensor_data(run_event, is_verbose):
             print ("Mag x: {0} ; Mag y : {1} ; Mag z : {2}".format(imu.MagVals[0], imu.MagVals[1], imu.MagVals[2]))
             print ("roll: {0} ; pitch : {1} ; yaw : {2}".format(imu.roll, imu.pitch, imu.yaw))
 
-        time.sleep(0.1)
+        time.sleep(poll_frequency)

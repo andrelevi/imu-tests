@@ -5,7 +5,9 @@ import time
 import socket
 import thread_variables
 
-def tcp_server(run_event, ip, port):
+end_of_message_marker = ';'
+
+def tcp_server(run_event, poll_frequency, ip, port):
     BUFFER_SIZE = 20  # Normally 1024, but we want fast response
 
     print('Starting TCP server at: {}:{}\n'.format(ip, port))
@@ -18,10 +20,10 @@ def tcp_server(run_event, ip, port):
     print('Client connnected: {}'.format(addr)) 
 
     while run_event.is_set():
-        data = thread_variables.imu_sensor_data.encode()
+        data = (f'{thread_variables.imu_sensor_data},{thread_variables.is_button_1_pressed},{thread_variables.is_button_2_pressed}{end_of_message_marker}').encode()
         print(data)
         conn.send(data)
-        time.sleep(1)
+        time.sleep(poll_frequency)
 
         #data = conn.recv(BUFFER_SIZE)
         #if not data: break

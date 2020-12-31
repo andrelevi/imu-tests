@@ -19,6 +19,7 @@ parser.add_argument('--ip', action='store', type=str, default='127.0.0.1')
 parser.add_argument('--port', action='store', type=int, default=5005)
 parser.add_argument('--button_1_gpio', action='store', type=int, default=18)
 parser.add_argument('--button_2_gpio', action='store', type=int, default=23)
+parser.add_argument('--poll_frequency', action='store', type=float, default=0.01666)
 args = parser.parse_args()
 
 print('=== IMU Server ===')
@@ -29,13 +30,13 @@ print('')
 run_event = threading.Event()
 run_event.set()
 
-tcp_server_thread = Thread(target=tcp_server, args=(run_event, args.ip, args.port))
+tcp_server_thread = Thread(target=tcp_server, args=(run_event, args.poll_frequency, args.ip, args.port))
 tcp_server_thread.start()
 
-button_1_thread = Thread(target=button, args=(run_event, args.button_1_gpio, 1))
+button_1_thread = Thread(target=button, args=(run_event, args.poll_frequency, args.button_1_gpio, 1))
 button_1_thread.start()
 
-button_2_thread = Thread(target=button, args=(run_event, args.button_2_gpio, 2))
+button_2_thread = Thread(target=button, args=(run_event, args.poll_frequency, args.button_2_gpio, 2))
 button_2_thread.start()
 
 print('')
@@ -48,7 +49,7 @@ elif args.imu == 'mock_imu':
     poll_imu_sensor_data = mock_imu_poll_imu_sensor_data
 
 if poll_imu_sensor_data != None:
-    poll_imu_sensor_data_thread = Thread(target=poll_imu_sensor_data, args=(run_event, False))
+    poll_imu_sensor_data_thread = Thread(target=poll_imu_sensor_data, args=(run_event, args.poll_frequency, False))
     poll_imu_sensor_data_thread.start()
 
 if poll_imu_sensor_data_thread == None:
@@ -62,8 +63,8 @@ except KeyboardInterrupt:
     print('Attempting to close threads.')
     run_event.clear()
     tcp_server_thread.join()
-    button_1.join()
-    button_2.join()
+    button_1_thread.join()
+    button_2_thread.join()
     poll_imu_sensor_data_thread.join()
     print('Threads successfully closed.')
     sys.exit()
