@@ -23,6 +23,8 @@ public class TestClient : MonoBehaviour
     private NetworkStream _networkStream;
     private StreamWriter _streamWriter;
     private float _timeOfLastCheck;
+    private bool _isButton1Pressed;
+    private bool _isButton2Pressed;
     
     private string Host => UseRemoteHost ? RemoteHost : LocalHost;
 
@@ -66,6 +68,14 @@ public class TestClient : MonoBehaviour
             }
         }
     }
+    
+    private Quaternion _basis;
+    private bool _hasSetBasis;
+
+    private void SetBasis()
+    {
+        _basis = TargetTransform.rotation;
+    }
 
     private void ProcessMessage(string str)
     {
@@ -83,18 +93,32 @@ public class TestClient : MonoBehaviour
             //TargetTransform.rotation = Quaternion.Euler(roll, yaw, pitch);
             TargetTransform.rotation = Euler(roll, yaw, pitch);
         }
-        
-        var isButton1Pressed = values[3] == "1";
-        if (isButton1Pressed)
+
+        if (!_hasSetBasis)
         {
-            Debug.Log("Button 1 pressed");
+            SetBasis();
+        
+            _hasSetBasis = true;
+        }
+        else
+        {
+            TargetTransform.rotation = Quaternion.Inverse(_basis) * TargetTransform.rotation;
         }
         
+        var isButton1Pressed = values[3] == "1";
+        if (GetButtonDown(1, isButton1Pressed))
+        {
+            Debug.Log("Button 1 pressed");
+            SetBasis();
+        }
+        _isButton1Pressed = isButton1Pressed;
+        
         var isButton2Pressed = values[4] == "1";
-        if (isButton2Pressed)
+        if (GetButtonDown(2, isButton2Pressed))
         {
             Debug.Log("Button 2 pressed");
         }
+        _isButton2Pressed = isButton2Pressed;
     }
 
     private bool ConnectToHost()
@@ -121,6 +145,48 @@ public class TestClient : MonoBehaviour
         {
             _tcpClient.Close();
         }
+    }
+
+    private bool GetButtonDown(int index, bool isPressed)
+    {
+        switch (index)
+        {
+            case 1:
+                return !_isButton1Pressed && isPressed;
+                
+            case 2:
+                return !_isButton2Pressed && isPressed;
+        }
+        
+        return false;
+    }
+    
+    private bool GetButton(int index)
+    {
+        switch (index)
+        {
+            case 1:
+                return _isButton1Pressed;
+                
+            case 2:
+                return _isButton2Pressed;
+        }
+        
+        return false;
+    }
+    
+    private bool GetButtonUp(int index, bool isPressed)
+    {
+        switch (index)
+        {
+            case 1:
+                return _isButton1Pressed && !isPressed;
+                
+            case 2:
+                return _isButton2Pressed && !isPressed;
+        }
+        
+        return false;
     }
     
     public static Quaternion Euler(float yaw, float pitch, float roll)
