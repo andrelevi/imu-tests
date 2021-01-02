@@ -69,17 +69,19 @@ public class TestClient : MonoBehaviour
 
     private void ProcessMessage(string str)
     {
+        // Data should be sent in order of:
+        // Roll, Pitch, Yaw, Button1, Button2
         var values = str.Split(',');
         
         if (values.Length <= 1) return;
 
         if (float.TryParse(values[0], out _))
         {
-            TargetTransform.eulerAngles = new Vector3(
-                float.Parse(values[0]),
-                float.Parse(values[1]),
-                float.Parse(values[2])
-            );
+            var roll = float.Parse(values[0]);
+            var pitch = float.Parse(values[1]);
+            var yaw = float.Parse(values[2]);
+            //TargetTransform.rotation = Quaternion.Euler(roll, yaw, pitch);
+            TargetTransform.rotation = Euler(roll, yaw, pitch);
         }
         
         var isButton1Pressed = values[3] == "1";
@@ -119,5 +121,29 @@ public class TestClient : MonoBehaviour
         {
             _tcpClient.Close();
         }
+    }
+    
+    public static Quaternion Euler(float yaw, float pitch, float roll)
+    {
+        yaw*=Mathf.Deg2Rad;
+        pitch*=Mathf.Deg2Rad;
+        roll*=Mathf.Deg2Rad;
+
+        double yawOver2 = yaw * 0.5f;
+        float cosYawOver2 = (float)System.Math.Cos(yawOver2);
+        float sinYawOver2 = (float)System.Math.Sin(yawOver2);
+        double pitchOver2 = pitch * 0.5f;
+        float cosPitchOver2 = (float)System.Math.Cos(pitchOver2);
+        float sinPitchOver2 = (float)System.Math.Sin(pitchOver2);
+        double rollOver2 = roll * 0.5f;
+        float cosRollOver2 = (float)System.Math.Cos(rollOver2);
+        float sinRollOver2 = (float)System.Math.Sin(rollOver2);            
+        Quaternion result;
+        result.w = cosYawOver2 * cosPitchOver2 * cosRollOver2 + sinYawOver2 * sinPitchOver2 * sinRollOver2;
+        result.x = sinYawOver2 * cosPitchOver2 * cosRollOver2 + cosYawOver2 * sinPitchOver2 * sinRollOver2;
+        result.y = cosYawOver2 * sinPitchOver2 * cosRollOver2 - sinYawOver2 * cosPitchOver2 * sinRollOver2;
+        result.z = cosYawOver2 * cosPitchOver2 * sinRollOver2 - sinYawOver2 * sinPitchOver2 * cosRollOver2;
+
+        return result;
     }
 }
