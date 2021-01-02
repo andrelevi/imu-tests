@@ -2,15 +2,22 @@
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using DG.Tweening;
 using UnityEngine;
 
 public class TestClient : MonoBehaviour
 {
     [Header("Components")]
     public Transform TargetTransform;
+    public Transform Button1;
+    public Transform Button2;
     
     [Header("Options")]
     public float PollFrequency = 1 / 60f;
+    
+    [Header("Controller Visualizer")]
+    public float ButtonYInactive;
+    public float ButtonYPressed;
     
     [Header("Network Settings")]
     public string LocalHost = "127.0.0.1";
@@ -25,6 +32,8 @@ public class TestClient : MonoBehaviour
     private float _timeOfLastCheck;
     private bool _isButton1Pressed;
     private bool _isButton2Pressed;
+    private Tween _button1Tween;
+    private Tween _button2Tween;
     
     private string Host => UseRemoteHost ? RemoteHost : LocalHost;
 
@@ -91,7 +100,8 @@ public class TestClient : MonoBehaviour
             var pitch = float.Parse(values[1]);
             var yaw = float.Parse(values[2]);
             //TargetTransform.rotation = Quaternion.Euler(roll, yaw, pitch);
-            TargetTransform.rotation = Euler(roll, yaw, pitch);
+            //TargetTransform.rotation = Euler(roll, yaw, pitch);
+            TargetTransform.rotation = Euler(roll, pitch, yaw);
         }
 
         if (!_hasSetBasis)
@@ -108,15 +118,28 @@ public class TestClient : MonoBehaviour
         var isButton1Pressed = values[3] == "1";
         if (GetButtonDown(1, isButton1Pressed))
         {
-            Debug.Log("Button 1 pressed");
-            SetBasis();
+            //SetBasis();
+            _button1Tween?.Kill();
+            _button1Tween = Button1.DOLocalMoveY(ButtonYPressed, 0.1f);
+        }
+        else if (GetButtonUp(1, isButton1Pressed))
+        {
+            _button1Tween?.Kill();
+            _button1Tween = Button1.DOLocalMoveY(ButtonYInactive, 0.1f);
         }
         _isButton1Pressed = isButton1Pressed;
         
         var isButton2Pressed = values[4] == "1";
         if (GetButtonDown(2, isButton2Pressed))
         {
-            Debug.Log("Button 2 pressed");
+            //SetBasis();
+            _button2Tween?.Kill();
+            _button2Tween = Button2.DOLocalMoveY(ButtonYPressed, 0.1f);
+        }
+        else if (GetButtonUp(2, isButton2Pressed))
+        {
+            _button2Tween?.Kill();
+            _button2Tween = Button2.DOLocalMoveY(ButtonYInactive, 0.1f);
         }
         _isButton2Pressed = isButton2Pressed;
     }
