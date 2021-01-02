@@ -17,14 +17,22 @@ def poll_imu_sensor_data(run_event, poll_frequency, is_verbose, filter_type):
     imu = MPU9250.MPU9250(bus, address)
     imu.begin()
 
-    #sensorfusion = madgwick.Madgwick(0.5)
-    sensorfusion = kalman.Kalman()
+    imu.caliberateGyro()
+    print ("Gyro calibration successful.")
+    imu.caliberateAccelerometer()
+    print ("Acceleration calibration successful.")
+    imu.caliberateMagApprox()
+    print ("Mag calib successful.")
 
-    imu.readSensor()
-    imu.computeOrientation()
-    sensorfusion.roll = imu.roll
-    sensorfusion.pitch = imu.pitch
-    sensorfusion.yaw = imu.yaw
+    if filter_type == 'madgwick':
+        sensorfusion = madgwick.Madgwick(0.5)
+    elif filter_type == 'kalman':
+        sensorfusion = kalman.Kalman()
+        imu.readSensor()
+        imu.computeOrientation()
+        sensorfusion.roll = imu.roll
+        sensorfusion.pitch = imu.pitch
+        sensorfusion.yaw = imu.yaw
 
     currTime = time.time()
     print_count = 0
