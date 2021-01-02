@@ -14,7 +14,7 @@ from imu.MPU9250 import poll_imu_sensor_data as MPU9250_poll_imu_sensor_data
 
 parser = argparse.ArgumentParser(description='Start the IMU polling and TCP server.')
 parser.add_argument('--imu', action='store', type=str, default='MPU9250')
-parser.add_argument('--filter', action='store', type=str, default='kalman')
+parser.add_argument('--filter_type', action='store', type=str, default='kalman')
 parser.add_argument('--ip', action='store', type=str, default='127.0.0.1')
 parser.add_argument('--port', action='store', type=int, default=5005)
 parser.add_argument('--button_1_gpio', action='store', type=int, default=18)
@@ -24,7 +24,7 @@ args = parser.parse_args()
 
 print('=== IMU Server ===')
 print('IMU: {}'.format(args.imu))
-print('Filter: {}'.format(args.filter))
+print('Filter: {}'.format(args.filter_type))
 print('')
 
 run_event = threading.Event()
@@ -49,7 +49,7 @@ elif args.imu == 'mock_imu':
     poll_imu_sensor_data = mock_imu_poll_imu_sensor_data
 
 if poll_imu_sensor_data != None:
-    poll_imu_sensor_data_thread = Thread(target=poll_imu_sensor_data, args=(run_event, args.poll_frequency, False))
+    poll_imu_sensor_data_thread = Thread(target=poll_imu_sensor_data, args=(run_event, args.poll_frequency, False, args.filter_type))
     poll_imu_sensor_data_thread.start()
 
 if poll_imu_sensor_data_thread == None:
