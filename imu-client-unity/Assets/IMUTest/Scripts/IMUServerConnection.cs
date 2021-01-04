@@ -73,11 +73,24 @@ namespace IMUTest.Scripts
             }
         }
 
-        private void OnApplicationQuit()
+        private void DisconnectFromServer()
         {
             if (_tcpClient != null && _tcpClient.Connected)
             {
                 _tcpClient.Close();
+            }
+        }
+
+        private void OnApplicationQuit()
+        {
+            DisconnectFromServer();
+        }
+        
+        private void OnApplicationPause(bool isPaused)
+        {
+            if (isPaused)
+            {
+                DisconnectFromServer();
             }
         }
     }
