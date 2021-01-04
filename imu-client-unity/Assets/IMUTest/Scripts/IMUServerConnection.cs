@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO;
+using System.Collections;
 using System.Net.Sockets;
 using System.Text;
 using UnityEngine;
@@ -20,9 +20,6 @@ namespace IMUTest.Scripts
 
         [Header("Run-time Data")]
         private TcpClient _tcpClient;
-        private NetworkStream _networkStream;
-        private StreamWriter _streamWriter;
-        private float _timeOfLastCheck;
     
         private string Host => UseRemoteHost ? RemoteHost : LocalHost;
 
@@ -33,23 +30,30 @@ namespace IMUTest.Scripts
             if (ConnectToHost())
             {
                 Debug.Log($"Connected to: {Host}:{Port}");
+
+                StartCoroutine(_Poll());
             }
         }
 
-        private void Update()
+        private bool ConnectToHost()
         {
-            if (Time.time - _timeOfLastCheck < PollFrequency)
+            try
             {
-                return;
+                _tcpClient.Connect(Host, Port);
+                
+                return true;
             }
+            catch (Exception e)
+            {
+                Debug.Log("Socket error: " + e);
+            
+                return false;
+            }
+        }
 
-            _timeOfLastCheck = Time.time;
-        
-            if (!_tcpClient.Connected)
-            {
-                ConnectToHost();
-            }
-            else
+        private IEnumerator _Poll()
+        {
+            while (_tcpClient.Connected)
             {
                 var stream = _tcpClient.GetStream();
                 var bytesToRead = new byte[_tcpClient.ReceiveBufferSize];
@@ -64,24 +68,8 @@ namespace IMUTest.Scripts
                 {
                     Controller.ProcessMessage(messages[i]);
                 }
-            }
-        }
-
-        private bool ConnectToHost()
-        {
-            try
-            {
-                _tcpClient.Connect(Host, Port);
-                _networkStream = _tcpClient.GetStream();
-                _streamWriter = new StreamWriter(_networkStream);
-            
-                return true;
-            }
-            catch (Exception e)
-            {
-                Debug.Log("Socket error: " + e);
-            
-                return false;
+                
+                yield return new WaitForSeconds(PollFrequency);
             }
         }
 
