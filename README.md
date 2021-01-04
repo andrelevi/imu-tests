@@ -1,12 +1,11 @@
 README
 ===
 
-Digital Filters taken from
+[Main file for IMU handling](/imu-server/main.py)
+
+Free Unity Assets Used
 ---
-https://gregstanleyandassociates.com/whitepapers/FaultDiagnosis/Filtering/filtering.htm
 
-Unity prototype materials
----
-https://assetstore.unity.com/packages/2d/textures-materials/gridbox-prototype-materials-129127
+[Prototype Materials](https://assetstore.unity.com/packages/2d/textures-materials/gridbox-prototype-materials-129127)
 
-
+[DOTween](https://assetstore.unity.com/packages/tools/animation/dotween-hotween-v2-27676)
