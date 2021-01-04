@@ -1069,7 +1069,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8d530ffe6c4968843806085897955b9d, type: 2}
+  - {fileID: 2100000, guid: c181c23a6120fbe4aadd5bb53a58dd78, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1107,7 +1107,7 @@ Transform:
   m_GameObject: {fileID: 718326692}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 50, y: 50, z: 50}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
@@ -1955,13 +1955,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a20671bf589e4dad944a0696975a63e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Camera: {fileID: 1994213649}
   MenuItems:
   - {fileID: 820503449}
   - {fileID: 1859006440}
   - {fileID: 2102138043}
   - {fileID: 848019229}
   - {fileID: 332040700}
+  Camera: {fileID: 1994213649}
 --- !u!1 &1551819685
 GameObject:
   m_ObjectHideFlags: 0
