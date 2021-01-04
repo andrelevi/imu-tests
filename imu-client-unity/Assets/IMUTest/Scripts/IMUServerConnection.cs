@@ -16,7 +16,7 @@ namespace IMUTest.Scripts
         public string RemoteHost = "192.168.x.x";
         public bool UseRemoteHost;
         public int Port = 5005;
-        public float PollFrequency = 1 / 60f;
+        [Tooltip("How often the IMU is polled for data.")] public float PollFrequency = 1 / 60f;
 
         [Header("Run-time Data")]
         private TcpClient _tcpClient;
@@ -25,6 +25,8 @@ namespace IMUTest.Scripts
 
         private void Start()
         {
+            Controller.MessageFrequency = PollFrequency;
+            
             _tcpClient = new TcpClient();
 
             if (ConnectToHost())

@@ -1,4 +1,5 @@
-﻿using DG.Tweening;
+﻿using System;
+using DG.Tweening;
 using UnityEngine;
 
 namespace IMUTest.Scripts
@@ -18,14 +19,19 @@ namespace IMUTest.Scripts
         public Vector3 SpawnOffsetFromCamera;
         
         [Header("Run-time Data")]
+        [NonSerialized] public float MessageFrequency;
         private bool _isButton1Pressed;
         private bool _isButton2Pressed;
         private Tween _button1Tween;
         private Tween _button2Tween;
         private Quaternion _rotationOffset;
         private bool _hasSetRotationOffset;
+        private Vector3 _velocity;
+        private Quaternion _smoothDampDerivative;
+        private Quaternion _rotationTarget;
+        private float _timeOfLastMessage;
         
-        private void ResetRotationOffset()
+        private void SetRotationOffset()
         {
             _rotationOffset = transform.rotation;
         }
@@ -38,31 +44,26 @@ namespace IMUTest.Scripts
         
             if (values.Length <= 1) return;
 
-            if (float.TryParse(values[0], out _))
-            {
-                var roll = float.Parse(values[0]);
-                var pitch = float.Parse(values[1]);
-                var yaw = float.Parse(values[2]);
-                //TargetTransform.rotation = Quaternion.Euler(roll, yaw, pitch);
-                //TargetTransform.rotation = Euler(roll, yaw, pitch);
-                transform.rotation = Euler(roll, pitch, yaw);
-            }
+            var roll = float.Parse(values[0]);
+            var pitch = float.Parse(values[1]);
+            var yaw = float.Parse(values[2]);
+            //_rotationTarget = MathUtils.Euler(roll, pitch, yaw);
+            _rotationTarget = Quaternion.Euler(pitch, yaw, roll);
 
             if (!_hasSetRotationOffset)
             {
-                ResetRotationOffset();
+                SetRotationOffset();
         
                 _hasSetRotationOffset = true;
             }
             else
             {
-                transform.rotation = Quaternion.Inverse(_rotationOffset) * transform.rotation;
+                _rotationTarget = Quaternion.Inverse(_rotationOffset) * _rotationTarget;
             }
-        
+            
             var isButton1Pressed = values[3] == "1";
             if (GetButtonDown(1, isButton1Pressed))
             {
-                //SetBasis();
                 _button1Tween?.Kill();
                 _button1Tween = Button1.DOLocalMoveY(ButtonYPressed, 0.1f);
             }
@@ -76,7 +77,9 @@ namespace IMUTest.Scripts
             var isButton2Pressed = values[4] == "1";
             if (GetButtonDown(2, isButton2Pressed))
             {
-                //SetBasis();
+                SetRotationOffset();
+                SpawnRelativeToCamera();
+                
                 _button2Tween?.Kill();
                 _button2Tween = Button2.DOLocalMoveY(ButtonYPressed, 0.1f);
             }
@@ -84,10 +87,25 @@ namespace IMUTest.Scripts
             {
                 _button2Tween?.Kill();
                 _button2Tween = Button2.DOLocalMoveY(ButtonYInactive, 0.1f);
-                
-                SpawnRelativeToCamera();
             }
             _isButton2Pressed = isButton2Pressed;
+            
+            _timeOfLastMessage = Time.time;
+        }
+
+        private void Update()
+        {
+            var interpolationDuration = MessageFrequency;
+            var extrapolationDuration = MessageFrequency;
+            
+            var t = (Time.time - _timeOfLastMessage) / interpolationDuration;
+
+            if (t > 1)
+            {
+                t = Mathf.Clamp(t, 0, 1 + (extrapolationDuration / MessageFrequency));
+            }
+            
+            transform.rotation = Quaternion.SlerpUnclamped(transform.rotation, _rotationTarget, t);
         }
 
         private void SpawnRelativeToCamera()
@@ -142,30 +160,6 @@ namespace IMUTest.Scripts
             }
         
             return false;
-        }
-    
-        public static Quaternion Euler(float yaw, float pitch, float roll)
-        {
-            yaw*=Mathf.Deg2Rad;
-            pitch*=Mathf.Deg2Rad;
-            roll*=Mathf.Deg2Rad;
-
-            double yawOver2 = yaw * 0.5f;
-            float cosYawOver2 = (float)System.Math.Cos(yawOver2);
-            float sinYawOver2 = (float)System.Math.Sin(yawOver2);
-            double pitchOver2 = pitch * 0.5f;
-            float cosPitchOver2 = (float)System.Math.Cos(pitchOver2);
-            float sinPitchOver2 = (float)System.Math.Sin(pitchOver2);
-            double rollOver2 = roll * 0.5f;
-            float cosRollOver2 = (float)System.Math.Cos(rollOver2);
-            float sinRollOver2 = (float)System.Math.Sin(rollOver2);            
-            Quaternion result;
-            result.w = cosYawOver2 * cosPitchOver2 * cosRollOver2 + sinYawOver2 * sinPitchOver2 * sinRollOver2;
-            result.x = sinYawOver2 * cosPitchOver2 * cosRollOver2 + cosYawOver2 * sinPitchOver2 * sinRollOver2;
-            result.y = cosYawOver2 * sinPitchOver2 * cosRollOver2 - sinYawOver2 * cosPitchOver2 * sinRollOver2;
-            result.z = cosYawOver2 * cosPitchOver2 * sinRollOver2 - sinYawOver2 * sinPitchOver2 * cosRollOver2;
-
-            return result;
         }
     }
 }
