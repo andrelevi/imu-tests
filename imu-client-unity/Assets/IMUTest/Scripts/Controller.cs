@@ -6,10 +6,12 @@ namespace IMUTest.Scripts
 {
     public class Controller : MonoBehaviour
     {
+        public Camera Camera;
+        public Menu Menu;
+        
         [Header("Components")]
         public Transform Button1;
         public Transform Button2;
-        public Camera Camera;
         
         [Header("Controller Visualizer")]
         public float ButtonYInactive;
@@ -20,16 +22,14 @@ namespace IMUTest.Scripts
         
         [Header("Run-time Data")]
         [NonSerialized] public float MessageFrequency;
+        private float _timeOfLastMessage;
+        private Quaternion _rotationOffset;
+        private bool _hasSetRotationOffset;
+        private Quaternion _rotationTarget;
         private bool _isButton1Pressed;
         private bool _isButton2Pressed;
         private Tween _button1Tween;
         private Tween _button2Tween;
-        private Quaternion _rotationOffset;
-        private bool _hasSetRotationOffset;
-        private Vector3 _velocity;
-        private Quaternion _smoothDampDerivative;
-        private Quaternion _rotationTarget;
-        private float _timeOfLastMessage;
         
         private void SetRotationOffset()
         {
@@ -42,7 +42,7 @@ namespace IMUTest.Scripts
             // Roll, Pitch, Yaw, Button1, Button2
             var values = str.Split(',');
         
-            if (values.Length <= 1) return;
+            if (values.Length < 5) return;
 
             var roll = float.Parse(values[0]);
             var pitch = float.Parse(values[1]);
@@ -64,6 +64,7 @@ namespace IMUTest.Scripts
             var isButton1Pressed = values[3] == "1";
             if (GetButtonDown(1, isButton1Pressed))
             {
+                Menu.ResetItems();
                 _button1Tween?.Kill();
                 _button1Tween = Button1.DOLocalMoveY(ButtonYPressed, 0.1f);
             }
@@ -72,6 +73,17 @@ namespace IMUTest.Scripts
                 _button1Tween?.Kill();
                 _button1Tween = Button1.DOLocalMoveY(ButtonYInactive, 0.1f);
             }
+            
+            if (isButton1Pressed)
+            {
+                var pos = transform.TransformPoint(new Vector3(0, 0, 5));
+                
+                if (Menu.CanSpawnItemAtPosition(pos))
+                {
+                    Menu.SpawnItemAtPosition(pos);
+                }
+            }
+            
             _isButton1Pressed = isButton1Pressed;
         
             var isButton2Pressed = values[4] == "1";
@@ -129,20 +141,6 @@ namespace IMUTest.Scripts
                 
                 case 2:
                     return !_isButton2Pressed && isPressed;
-            }
-        
-            return false;
-        }
-    
-        private bool GetButton(int index)
-        {
-            switch (index)
-            {
-                case 1:
-                    return _isButton1Pressed;
-                
-                case 2:
-                    return _isButton2Pressed;
             }
         
             return false;
