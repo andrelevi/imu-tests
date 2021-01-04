@@ -58,17 +58,22 @@ namespace IMUTest.Scripts
             while (_tcpClient.Connected)
             {
                 var stream = _tcpClient.GetStream();
-                var bytesToRead = new byte[_tcpClient.ReceiveBufferSize];
-                var bytesRead = stream.Read(bytesToRead, 0, _tcpClient.ReceiveBufferSize);
-                var str = Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
-
-                const char endOfMessageMarker = ';';
-            
-                var messages = str.Split(endOfMessageMarker);
-            
-                for (var i = 0; i < messages.Length; i++)
+                
+                if (stream.DataAvailable)
                 {
-                    Controller.ProcessMessage(messages[i]);
+                    var bytesToRead = new byte[_tcpClient.ReceiveBufferSize];
+                
+                    var bytesRead = stream.Read(bytesToRead, 0, _tcpClient.ReceiveBufferSize);
+                    var str = Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
+
+                    const char endOfMessageMarker = ';';
+                
+                    var messages = str.Split(endOfMessageMarker);
+                
+                    for (var i = 0; i < messages.Length; i++)
+                    {
+                        Controller.ProcessMessage(messages[i]);
+                    }
                 }
                 
                 yield return new WaitForSeconds(PollFrequency);
