@@ -1,6 +1,8 @@
 #!/bin/sh
 
+# Get the ssh endpoint from the arguments
 SSH_ENDPOINT=$1
+
 echo Deploying to: $SSH_ENDPOINT
 
 DIR=/var/www/imu-server
