@@ -1,6 +1,8 @@
 README
 ===
 
+Still a work in progress!
+
 [Main file for IMU handling](/imu-server/main.py)
 
 Free Unity Assets Used
