@@ -20,6 +20,7 @@ parser.add_argument('--port', action='store', type=int, default=5005)
 parser.add_argument('--button_1_gpio', action='store', type=int, default=18)
 parser.add_argument('--button_2_gpio', action='store', type=int, default=23)
 parser.add_argument('--poll_frequency', action='store', type=float, default=0.01666)
+parser.add_argument('--is_verbose', action='store', type=bool, default=False)
 args = parser.parse_args()
 
 print('=== IMU Server ===')
@@ -30,7 +31,7 @@ print('')
 run_event = threading.Event()
 run_event.set()
 
-tcp_server_thread = Thread(target=tcp_server, args=(run_event, args.poll_frequency, args.ip, args.port))
+tcp_server_thread = Thread(target=tcp_server, args=(run_event, args.is_verbose, args.poll_frequency, args.ip, args.port))
 tcp_server_thread.start()
 
 button_1_thread = Thread(target=button, args=(run_event, args.poll_frequency, args.button_1_gpio, 1))

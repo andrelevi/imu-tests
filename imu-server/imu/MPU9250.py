@@ -17,12 +17,12 @@ def poll_imu_sensor_data(run_event, poll_frequency, is_verbose, filter_type):
     imu = MPU9250.MPU9250(bus, address)
     imu.begin()
 
-    imu.caliberateGyro()
-    print ("Gyro calibration successful.")
-    imu.caliberateAccelerometer()
-    print ("Acceleration calibration successful.")
-    imu.caliberateMagApprox()
-    print ("Mag calib successful.")
+    #imu.caliberateGyro()
+    #print ("Gyro calibration successful.")
+    #imu.caliberateAccelerometer()
+    #print ("Acceleration calibration successful.")
+    #imu.caliberateMagApprox()
+    #print ("Mag calib successful.")
 
     if filter_type == 'madgwick':
         sensorfusion = madgwick.Madgwick(0.5)
