@@ -1,6 +1,14 @@
 README
 ===
 
+IMU controller connected to Oculus Quest app:
+
+<img src="/imu-test_gif.gif?raw">
+
+IMU controller:
+
+<img src="/imu-test_picture.jpg?raw">
+
 Still a work in progress!
 
 [Main file for IMU handling](/imu-server/main.py)
